@@ -6,7 +6,7 @@ async function connectWhatsapp() {
     const auth = await useMultiFileAuthState("session");
     const socket = makeWASocket({
       printQRInTerminal: true,
-      browser: ["DAPABOT", "", ""],
+      browser: ["tMCBOT", "", ""],
       auth: auth.state,
       logger: pino({ level: "silent" }),
     });
@@ -14,7 +14,7 @@ async function connectWhatsapp() {
     socket.ev.on("creds.update", auth.saveCreds);
     socket.ev.on("connection.update", async ({ connection }) => {
       if (connection === "open") {
-        console.log("BOT WHATSAPP SUDAH SIAP✅ -- BY DAPICODE!"); //memberitahu jika sudah connect
+        console.log("BOT WHATSAPP SUDAH SIAP✅ -- BY tMCTomyStudio!"); //memberitahu jika sudah connect
       } else if (connection === "close") {
         await connectWhatsapp(); //gunanya buat connect ulang
       }
@@ -67,8 +67,8 @@ async function connectWhatsapp() {
 
           const mediaData = await getMedia(chat)
           const stickerOption = {
-            pack: "DapaSticker",
-            author: "DapiCode",
+            pack: "tMCTomyStudio",
+            author: "tMCTomyStudio",
             type: StickerTypes.FULL,
             quality: 50
           }
