@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Hidetag Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #075e54;
+            text-align: center;
+        }
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #075e54;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #128C7E;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #075e54;
+        }
+        #mediaPreview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WhatsApp Hidetag Sender</h1>
+    <form id="hidetagForm">
+        <label for="groupId">Group:</label>
+        <select id="groupId" name="groupId" required>
+            <option value="">Select a group</option>
+        </select>
+        
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="4" required placeholder="Ketik pesan Anda di sini..."></textarea>
+        
+        <label for="media">Media (optional):</label>
+        <input type="file" id="media" name="media" accept="image/*,video/*,application/*">
+        <img id="mediaPreview" style="display: none;">
+        
+        <button type="submit">Send Hidetag Message</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const groupSelect = document.getElementById('groupId');
+            try {
+                const response = await fetch('/groups');
+                const groups = await response.json();
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group.id;
+                    option.textContent = group.name;
+                    groupSelect.appendChild(option);
+                });
+            } catch (error) {
+                alert('Error loading groups: ' + error.message);
+            }
+        });
+
+        const mediaInput = document.getElementById('media');
+        const mediaPreview = document.getElementById('mediaPreview');
+
+        mediaInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mediaPreview.src = e.target.result;
+                    mediaPreview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                mediaPreview.style.display = 'none';
+            }
+        });
+
+        document.getElementById('hidetagForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const groupId = document.getElementById('groupId').value;
+            const message = document.getElementById('message').value;
+            const mediaFile = document.getElementById('media').files[0];
+
+            const formData = new FormData();
+            formData.append('groupId', groupId);
+            formData.append('message', message);
+            if (mediaFile) {
+                formData.append('media', mediaFile);
+            }
+
+            try {
+                const response = await fetch('/send-hidetag', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Pesan berhasil dikirim!');
+                    document.getElementById('message').value = '';
+                    document.getElementById('media').value = '';
+                    mediaPreview.style.display = 'none';
+                } else {
+                    alert('Gagal mengirim pesan: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
